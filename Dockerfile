@@ -1,7 +1,8 @@
 FROM gentoo/portage AS portage
 FROM gentoo/stage3-amd64 AS distcc-builder
 COPY --from=portage /var/db/repos/gentoo/ /var/db/repos/gentoo/
-RUN emerge --update --deep --newuse --with-bdeps=y @system
+RUN emerge sys-devel/gettext dev-perl/Locale-gettext
+RUN emerge --update --deep --newuse --with-bdeps=y @world
 RUN emerge sys-devel/distcc sys-devel/crossdev
 RUN mkdir -p /etc/portage/repos.conf
 COPY crossdev.conf /etc/portage/repos.conf/
@@ -14,7 +15,7 @@ RUN mkdir -p /usr/local/portage-crossdev &&\
   rm -f make.profile &&\
   ln -s /usr/portage/profiles/default/linux/arm64/17.0/desktop make.profile
 COPY hello.c /
-COPY boot.bash /boot.bash
+COPY need.bash /need.bash
 EXPOSE 3632
 
-CMD ["distccd" "--daemon" "--no-detach" "--log-level" "notice" "--log-stderr" "--allow-private"]
+CMD ["/usr/bin/distccd", "--daemon", "--no-detach", "--log-level", "notice", "--log-stderr", "--allow-private"]
